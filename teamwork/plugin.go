@@ -11,7 +11,10 @@ const pluginName = "steampipe-plugin-teamwork"
 func Plugin(ctx context.Context) *plugin.Plugin {
 	p := &plugin.Plugin{
 		Name: pluginName,
-		//DefaultTransform: transform.FromCamel(),
+		ConnectionConfigSchema: &plugin.ConnectionConfigSchema{
+			NewInstance: ConfigInstance,
+			Schema:      ConfigSchema,
+		},
 		TableMap: map[string]*plugin.Table{
 			"teamwork_project": tableTeamworkProject(ctx),
 		},

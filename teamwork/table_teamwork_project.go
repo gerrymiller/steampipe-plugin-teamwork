@@ -2,6 +2,7 @@ package teamwork
 
 import (
 	"context"
+	"time"
 
 	"github.com/turbot/steampipe-plugin-sdk/v5/grpc/proto"
 	"github.com/turbot/steampipe-plugin-sdk/v5/plugin"
@@ -42,57 +43,57 @@ func tableTeamworkProject(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Description"),
 			},
 			{
-				Name:        "startDate",
+				Name:        "start_date",
 				Type:        proto.ColumnType_STRING,
-				Description: "The start date of the project",
+				Description: "The start date of the project.",
 				Transform:   transform.FromField("StartDate"),
 			},
 			{
-				Name:        "lastChangedOn",
+				Name:        "last_changed_on",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "The date of the last change to the project",
+				Description: "The date of the last change to the project.",
 				Transform:   transform.FromField("LastChangedOn"),
 			},
 			{
 				Name:        "logo",
 				Type:        proto.ColumnType_STRING,
-				Description: "A URL to the project's logo",
+				Description: "A URL to the project's logo.",
 				Transform:   transform.FromField("Logo"),
 			},
 			{
-				Name:        "createdOn",
+				Name:        "created_on",
 				Type:        proto.ColumnType_TIMESTAMP,
-				Description: "The date the project was created",
+				Description: "The date the project was created.",
 				Transform:   transform.FromField("CreatedOn"),
 			},
 			{
-				Name:        "privacyEnabled",
+				Name:        "privacy_enabled",
 				Type:        proto.ColumnType_BOOL,
-				Description: "A boolean indicating whether this is a private project",
+				Description: "A boolean indicating whether this is a private project.",
 				Transform:   transform.FromField("PrivacyEnabled"),
 			},
 			{
 				Name:        "status",
 				Type:        proto.ColumnType_STRING,
-				Description: "The current status of the project",
+				Description: "The current status of the project.",
 				Transform:   transform.FromField("Status"),
 			},
 			{
-				Name:        "boardData",
+				Name:        "board_data",
 				Type:        proto.ColumnType_JSON,
-				Description: "Board data for the project",
+				Description: "Board data for the project.",
 				Transform:   transform.FromField("BoardData"),
 			},
 			{
-				Name:        "replyByEmailEnabled",
+				Name:        "reply_by_email_enabled",
 				Type:        proto.ColumnType_BOOL,
-				Description: "A boolean indicating whether the project supports replies via email",
+				Description: "A boolean indicating whether the project supports replies via email.",
 				Transform:   transform.FromField("ReplyByEmailEnabled"),
 			},
 			{
-				Name:        "harvestTimersEnabled",
+				Name:        "harvest_timers_enabled",
 				Type:        proto.ColumnType_BOOL,
-				Description: "A boolean indicating whether the project supports Harvest timers",
+				Description: "A boolean indicating whether the project supports Harvest timers.",
 				Transform:   transform.FromField("HarvestTimersEnabled"),
 			},
 		},
@@ -102,16 +103,91 @@ func tableTeamworkProject(ctx context.Context) *plugin.Table {
 func listTeamworkProjects(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
 	// Logic to connect to Teamwork API and get a list of projects
 
+	plugin.Logger(ctx).Trace("Entering listTeamworkProjects()")
+
 	config := GetConfig(d.Connection)
 
-	projects, err := GetProjects(*config.APIKey, "https://teamwork."+*config.Domain+".com", plugin.Logger(ctx))
+	var projects ProjectsResponse
+	_, err := ListTeamworkItems(*config.APIKey, "https://teamwork."+*config.Domain+".com/projects.json", &projects, plugin.Logger(ctx))
 	if err != nil {
+		plugin.Logger(ctx).Error(err.Error())
 		return nil, err
 	}
 
-	for _, t := range (*projects).Projects {
+	for _, t := range projects.Projects {
 		d.StreamListItem(ctx, t)
 	}
 
+	plugin.Logger(ctx).Trace("Exiting listTeamworkProjects()")
 	return nil, nil
+}
+
+type ProjectsResponse struct {
+	Status   string `json:"STATUS"`
+	Projects []struct {
+		StartDate      string    `json:"startDate"`
+		LastChangedOn  time.Time `json:"last-changed-on"`
+		Logo           string    `json:"logo"`
+		CreatedOn      time.Time `json:"created-on"`
+		PrivacyEnabled bool      `json:"privacyEnabled"`
+		Status         string    `json:"status"`
+		BoardData      struct {
+		} `json:"boardData"`
+		ReplyByEmailEnabled  bool   `json:"replyByEmailEnabled"`
+		HarvestTimersEnabled bool   `json:"harvest-timers-enabled"`
+		Description          string `json:"description"`
+		Category             struct {
+			Color string `json:"color"`
+			ID    string `json:"id"`
+			Name  string `json:"name"`
+		} `json:"category"`
+		ID                string `json:"id"`
+		OverviewStartPage string `json:"overview-start-page"`
+		StartPage         string `json:"start-page"`
+		Integrations      struct {
+			Xero struct {
+				Basecurrency string `json:"basecurrency"`
+				Countrycode  string `json:"countrycode"`
+				Enabled      bool   `json:"enabled"`
+				Connected    string `json:"connected"`
+				Organisation string `json:"organisation"`
+			} `json:"xero"`
+			Sharepoint struct {
+				Account    string `json:"account"`
+				Foldername string `json:"foldername"`
+				Enabled    bool   `json:"enabled"`
+				Folder     string `json:"folder"`
+			} `json:"sharepoint"`
+			MicrosoftConnectors struct {
+				Enabled bool `json:"enabled"`
+			} `json:"microsoftConnectors"`
+			Onedrivebusiness struct {
+				Account    string `json:"account"`
+				Foldername string `json:"foldername"`
+				Enabled    bool   `json:"enabled"`
+				Folder     string `json:"folder"`
+			} `json:"onedrivebusiness"`
+		} `json:"integrations"`
+		Defaults struct {
+			Privacy string `json:"privacy"`
+		} `json:"defaults"`
+		Notifyeveryone      bool   `json:"notifyeveryone"`
+		FilesAutoNewVersion bool   `json:"filesAutoNewVersion"`
+		DefaultPrivacy      string `json:"defaultPrivacy"`
+		TasksStartPage      string `json:"tasks-start-page"`
+		Starred             bool   `json:"starred"`
+		AnnouncementHTML    string `json:"announcementHTML"`
+		IsProjectAdmin      bool   `json:"isProjectAdmin"`
+		Name                string `json:"name"`
+		Company             struct {
+			IsOwner string `json:"is-owner"`
+			ID      string `json:"id"`
+			Name    string `json:"name"`
+		} `json:"company"`
+		EndDate          string `json:"endDate"`
+		Announcement     string `json:"announcement"`
+		ShowAnnouncement bool   `json:"show-announcement"`
+		SubStatus        string `json:"subStatus"`
+		Tags             []any  `json:"tags"`
+	} `json:"projects"`
 }

@@ -371,6 +371,7 @@ func listTeamworkProjects(ctx context.Context, d *plugin.QueryData, _ *plugin.Hy
 	return nil, nil
 }
 
+// TODO: fill out with additional fields from selecting a single project
 type Project struct {
 	StartDate      string    `json:"startDate"`
 	LastChangedOn  time.Time `json:"last-changed-on"`

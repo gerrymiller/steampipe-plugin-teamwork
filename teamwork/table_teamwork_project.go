@@ -189,31 +189,36 @@ func tableTeamworkProject(ctx context.Context) *plugin.Table {
 				Name:        "integrations_microsoftconnectors_enabled",
 				Type:        proto.ColumnType_BOOL,
 				Description: "Indicates whether or not the Microsoft Connectors integration is enabled.",
-				Transform:   transform.FromField("Integrations.MicrosoftConnectors.Enabled").NullIfZero(),
+				Transform: transform.FromField("Integrations.MicrosoftConnectors.Enabled").
+					NullIfZero(),
 			},
 			{
 				Name:        "integrations_onedrivebusiness_account",
 				Type:        proto.ColumnType_STRING,
 				Description: "The account for OneDrive Business integration.",
-				Transform:   transform.FromField("Integrations.Onedrivebusiness.Account").NullIfZero(),
+				Transform: transform.FromField("Integrations.Onedrivebusiness.Account").
+					NullIfZero(),
 			},
 			{
 				Name:        "integrations_onedrivebusiness_foldername",
 				Type:        proto.ColumnType_STRING,
 				Description: "The folder name for OneDrive Business integration.",
-				Transform:   transform.FromField("Integrations.Onedrivebusiness.Foldername").NullIfZero(),
+				Transform: transform.FromField("Integrations.Onedrivebusiness.Foldername").
+					NullIfZero(),
 			},
 			{
 				Name:        "integrations_onedrivebusiness_enabled",
 				Type:        proto.ColumnType_BOOL,
 				Description: "Indicates whether or not the OneDrive Business integration is enabled.",
-				Transform:   transform.FromField("Integrations.Onedrivebusiness.Enabled").NullIfZero(),
+				Transform: transform.FromField("Integrations.Onedrivebusiness.Enabled").
+					NullIfZero(),
 			},
 			{
 				Name:        "integrations_onedrivebusiness_folder",
 				Type:        proto.ColumnType_STRING,
 				Description: "The folder  for OneDrive Business integration.",
-				Transform:   transform.FromField("Integrations.Onedrivebusiness.Folder").NullIfZero(),
+				Transform: transform.FromField("Integrations.Onedrivebusiness.Folder").
+					NullIfZero(),
 			},
 			{
 				Name:        "defaults_privacy",
@@ -315,8 +320,12 @@ func tableTeamworkProject(ctx context.Context) *plugin.Table {
 	}
 }
 
-func getTeamworkProject(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
-	// Logic to connect to Teamwork API and get a single projects
+func getTeamworkProject(
+	ctx context.Context,
+	d *plugin.QueryData,
+	_ *plugin.HydrateData,
+) (interface{}, error) {
+	// Logic to connect to Teamwork API and get a single project
 
 	plugin.Logger(ctx).Trace("Entering getTeamworkProject()")
 
@@ -341,7 +350,11 @@ func getTeamworkProject(ctx context.Context, d *plugin.QueryData, _ *plugin.Hydr
 	return project.Project, nil
 }
 
-func listTeamworkProjects(ctx context.Context, d *plugin.QueryData, _ *plugin.HydrateData) (interface{}, error) {
+func listTeamworkProjects(
+	ctx context.Context,
+	d *plugin.QueryData,
+	_ *plugin.HydrateData,
+) (interface{}, error) {
 	// Logic to connect to Teamwork API and get a list of projects
 
 	plugin.Logger(ctx).Trace("Entering listTeamworkProjects()")

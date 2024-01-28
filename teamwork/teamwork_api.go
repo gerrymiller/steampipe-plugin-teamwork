@@ -7,8 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"reflect"
-	"strconv"
 
 	"github.com/hashicorp/go-hclog"
 )
@@ -55,7 +53,7 @@ Sample usage:
 		fmt.Printf("Source: %+v\n", src2)
 		fmt.Printf("Target: %+v\n", tgt)
 	}
-*/
+
 func appendFirstArrayElement(src, tgt interface{}) error {
 	srcVal := reflect.ValueOf(src).Elem()
 	tgtVal := reflect.ValueOf(tgt).Elem()
@@ -92,8 +90,11 @@ func appendFirstArrayElement(src, tgt interface{}) error {
 
 	return nil
 }
+*/
 
-func ListTeamworkItems(apiKey string, xurl string, response interface{}, logger hclog.Logger) (interface{}, error) {
+func ListTeamworkItems(apiKey string, xurl string, response interface{},
+	logger hclog.Logger) (interface{}, error) {
+
 	logger.Trace(`Entering ListTeamworkItems()`)
 
 	// Parse the URL so we can add query parameters
@@ -103,46 +104,35 @@ func ListTeamworkItems(apiKey string, xurl string, response interface{}, logger 
 		return nil, err
 	}
 
-	// If we have to paginate, we'll need to keep track of the current page and the total pages
-	currentPage := 1
-	totalPages := -1
+	req, err := http.NewRequest("GET", u.String(), nil)
 
-	// Iterate until all pages have been retrieved
-	for {
-		// Add the page query parameter to let Teamwork know with page to retrieve
-		q := u.Query()
-		q.Set("page", strconv.Itoa(currentPage))
+	if err != nil {
+		logger.Error(err.Error())
+		return nil, err
+	}
 
-		// Re-encode with the new query parameters and create a new request
-		u.RawQuery = q.Encode()
-		req, err := http.NewRequest("GET", u.String(), nil)
+	logger.Trace(fmt.Sprintf("ListTeamworkItems(): req: %+v", req))
+	logger.Trace(fmt.Sprintf("ListTeamworkItems(): url: %s", req.URL.String()))
 
-		if err != nil {
-			logger.Error(err.Error())
-			return nil, err
-		}
+	// Make sure we authorize with our API key, and that we accept JSON
+	req.Header.Add(
+		"Authorization",
+		"Basic "+base64.StdEncoding.EncodeToString([]byte(apiKey+":x")),
+	)
+	req.Header.Add("Accept", "application/json")
 
-		logger.Trace(fmt.Sprintf("ListTeamworkItems(): req: %+v", req))
-		logger.Trace(fmt.Sprintf("ListTeamworkItems(): url: %s", req.URL.String()))
+	logger.Trace(fmt.Sprintf("ListTeamworkItems(): req: %+v", req.Header["Authorization"]))
 
-		// Make sure we authorize with our API key, and that we accept JSON
-		req.Header.Add("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(apiKey+":x")))
-		req.Header.Add("Accept", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		logger.Error(fmt.Sprintf("ListTeamworkItems(): Error %s", err.Error()))
+		return nil, err
+	}
+	defer resp.Body.Close()
+	logger.Trace(fmt.Sprintf("ListTeamworkItems(): %s", resp.Status))
+	logger.Trace(fmt.Sprintf("ListTeamworkItems(): Heeders: %+v", resp.Header))
 
-		logger.Trace(fmt.Sprintf("ListTeamworkItems(): req: %+v", req.Header["Authorization"]))
-
-		resp, err := http.DefaultClient.Do(req)
-
-		logger.Trace(fmt.Sprintf("ListTeamworkItems(): %s", resp.Status))
-
-		if err != nil {
-			logger.Error(fmt.Sprintf("ListTeamworkItems(): Error %s", err.Error()))
-			return nil, err
-		}
-		defer resp.Body.Close()
-
-		logger.Trace(fmt.Sprintf("ListTeamworkItems(): Heeders: %+v", resp.Header))
-
+	/*
 		if totalPages == -1 {
 			totalPagesHeader := resp.Header.Get("x-pages")
 			if totalPagesHeader != "" {
@@ -155,24 +145,19 @@ func ListTeamworkItems(apiKey string, xurl string, response interface{}, logger 
 				totalPages = 1
 			}
 		}
+	*/
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			logger.Error(fmt.Sprintf("ListTeamworkItems(): Error %s", err.Error()))
-			return nil, err
-		}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		logger.Error(fmt.Sprintf("ListTeamworkItems(): Error %s", err.Error()))
+		return nil, err
+	}
 
-		logger.Trace(fmt.Sprintf("ListTeamworkItems(): body: %s", body))
+	logger.Trace(fmt.Sprintf("ListTeamworkItems(): body: %s", body))
 
-		if err := json.Unmarshal(body, response); err != nil {
-			logger.Error(fmt.Sprintf("ListTeamworkItems(): Error %s", err.Error()))
-			return nil, err
-		}
-
-		currentPage++
-		if currentPage >= totalPages {
-			break
-		}
+	if err := json.Unmarshal(body, response); err != nil {
+		logger.Error(fmt.Sprintf("ListTeamworkItems(): Error %s", err.Error()))
+		return nil, err
 	}
 
 	logger.Trace(fmt.Sprintf("ListTeamworkItems(): response: %+v", response))

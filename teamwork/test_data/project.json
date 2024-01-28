@@ -1,0 +1,83 @@
+{
+    "project": {
+        "startDate": "",
+        "last-changed-on": "2023-12-06T14:13:25Z",
+        "logo": "https:\/\/s3.amazonaws.com\/TWFiles\/208455\/companyLogo\/tf_fc31f9d2-fa08-47ef-bc6a-a5663574309f.Cloudticity_Logo_color.png",
+        "active-pages": {
+            "board": "1",
+            "proofs": "1",
+            "billing": "1",
+            "links": "0",
+            "comments": "1",
+            "milestones": "1",
+            "time": "1",
+            "files": "1",
+            "riskRegister": "0",
+            "tasks": "1",
+            "table": "1",
+            "forms": "1",
+            "gantt": "1",
+            "finance": "1",
+            "messages": "1",
+            "list": "1",
+            "notebooks": "1"
+        },
+        "created-on": "2023-09-22T18:24:54Z",
+        "privacyEnabled": false,
+        "replyByEmailEnabled": true,
+        "boardData": {},
+        "status": "active",
+        "harvest-timers-enabled": false,
+        "description": "",
+        "category": {
+            "parentId": "",
+            "color": "",
+            "id": "",
+            "name": ""
+        },
+        "portfolioBoards": [],
+        "isBillable": true,
+        "id": "483331",
+        "overview-start-page": "default",
+        "start-page": "projectoverview",
+        "type": "normal",
+        "integrations": {
+            "xero": {
+                "basecurrency": "",
+                "countrycode": "",
+                "enabled": false,
+                "connected": "NO",
+                "organisation": ""
+            },
+            "sharepoint": {
+                "account": "",
+                "foldername": "root",
+                "enabled": false,
+                "folder": "root"
+            },
+            "onedrivebusiness": {
+                "enabled": false
+            }
+        },
+        "notifyeveryone": false,
+        "filesAutoNewVersion": false,
+        "defaultPrivacy": "open",
+        "starred": false,
+        "directFileUploadsEnabled": true,
+        "tasks-start-page": "table",
+        "skipWeekends": false,
+        "announcementHTML": "",
+        "name": "Client Onboarding",
+        "company": {
+            "id": "71584",
+            "name": "Cloudticity"
+        },
+        "endDate": "",
+        "announcement": "",
+        "logoFromCompany": true,
+        "show-announcement": false,
+        "subStatus": "current",
+        "tags": []
+    },
+    "STATUS": "OK"
+}

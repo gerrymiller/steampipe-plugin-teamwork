@@ -6,18 +6,32 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"regexp"
 	"testing"
 	"time"
 
 	"github.com/hashicorp/go-hclog"
 )
 
-func TestListTeamworkItemsProjects(t *testing.T) {
+func setupSuite(tb testing.TB) (func(tb testing.TB), string) {
+	tb.Log("setupSuite")
+
 	// Create a test server that always returns the same response
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		projects, err := os.ReadFile(`test_data/projects.json`)
+		var file string
+		projectPattern := regexp.MustCompile(`^/project/[0-9]+.json$`)
+
+		switch cmd := r.URL.Path; {
+		case cmd == "/projects.json":
+			file = `test_data/projects.json`
+		case projectPattern.MatchString(cmd):
+			file = `test_data/project.json`
+		default:
+			tb.Errorf("unexpected path: %v", r.URL.Path)
+		}
+		contents, err := os.ReadFile(file)
 		if err != nil {
-			t.Errorf("unexpected error: %v", err)
+			tb.Errorf("unexpected error: %v", err)
 		}
 		w.Header().Set("Server", "nginx")
 		w.Header().Set("Date", time.Now().In(time.FixedZone("GMT", 0)).Format(http.TimeFormat))
@@ -37,7 +51,7 @@ func TestListTeamworkItemsProjects(t *testing.T) {
 		randomBytes := make([]byte, 16)
 		_, err = rand.Read(randomBytes)
 		if err != nil {
-			t.Errorf("Error generating random ETag: %v", err)
+			tb.Errorf("Error generating random ETag: %v", err)
 		}
 		etag := base64.URLEncoding.EncodeToString(randomBytes)
 		w.Header().Set("etag", etag)
@@ -59,13 +73,31 @@ func TestListTeamworkItemsProjects(t *testing.T) {
 		w.Header().
 			Set("content-security-policy", "frame-ancestors 'self' localhost *.teamwork.com *.teamworkpm.net teams.microsoft.com *.teams.microsoft.com *.skype.com teamworkintegrations.ngrok.io *.us.teamworkops.com;")
 
-		w.Write(projects)
+		w.Write(contents)
 	}))
-	defer ts.Close()
+
+	return func(tb testing.TB) {
+		tb.Log("teardownSuite")
+		ts.Close()
+	}, ts.URL
+}
+
+func setupTest(tb testing.TB) func(tb testing.TB) {
+	tb.Log("setupTest")
+
+	return func(tb testing.TB) {
+		tb.Log("teardownTest")
+	}
+}
+
+func TestListTeamworkItemsProjects(t *testing.T) {
+
+	teardownSuite, url := setupSuite(t)
+	defer teardownSuite(t)
 
 	// Call the API
 	var response ProjectsResponse
-	_, err := ListTeamworkItems("apiKey", ts.URL, &response, hclog.Default())
+	_, err := ListTeamworkItems("apiKey", url+"/projects.json", &response, hclog.Default())
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}

@@ -72,6 +72,12 @@ func tableTeamworkProject(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("Logo").NullIfZero(),
 			},
 			{
+				Name:        "logo_from_company",
+				Type:        proto.ColumnType_BOOL,
+				Description: "Indicates whether the logo is from a company.",
+				Transform:   transform.FromField("LogoFromCompany").NullIfZero(),
+			},
+			{
 				Name:        "created_on",
 				Type:        proto.ColumnType_TIMESTAMP,
 				Description: "The date the project was created.",
@@ -124,6 +130,12 @@ func tableTeamworkProject(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_STRING,
 				Description: "The name of the category.",
 				Transform:   transform.FromField("Category.Name").NullIfZero(),
+			},
+			{
+				Name:        "category_parent_id",
+				Type:        proto.ColumnType_STRING,
+				Description: "The parent ID of the category.",
+				Transform:   transform.FromField("Category.ParentID").NullIfZero(),
 			},
 			{
 				Name:        "overview_start_page",
@@ -245,6 +257,12 @@ func tableTeamworkProject(ctx context.Context) *plugin.Table {
 				Transform:   transform.FromField("DefaultPrivacy").NullIfZero(),
 			},
 			{
+				Name:        "start_page",
+				Type:        proto.ColumnType_STRING,
+				Description: "Which start page to use for this project.",
+				Transform:   transform.FromField("StartPage").NullIfZero(),
+			},
+			{
 				Name:        "tasks_start_page",
 				Type:        proto.ColumnType_STRING,
 				Description: "URL of the tasks associated with this project.",
@@ -267,6 +285,24 @@ func tableTeamworkProject(ctx context.Context) *plugin.Table {
 				Type:        proto.ColumnType_BOOL,
 				Description: "Indicates whether or not the calling user is an administrator of the project.",
 				Transform:   transform.FromField("IsProjectAdmin").NullIfZero(),
+			},
+			{
+				Name:        "is_billable",
+				Type:        proto.ColumnType_BOOL,
+				Description: "Indicates whether or not the project is billable.",
+				Transform:   transform.FromField("IsBillable").NullIfZero(),
+			},
+			{
+				Name:        "is_onboarding_project",
+				Type:        proto.ColumnType_BOOL,
+				Description: "Indicates whether or not the project represents onboarding.",
+				Transform:   transform.FromField("IsOnboardingProject").NullIfZero(),
+			},
+			{
+				Name:        "is_sample_project",
+				Type:        proto.ColumnType_BOOL,
+				Description: "Indicates whether or not the project is a sample project.",
+				Transform:   transform.FromField("IsSampleProject").NullIfZero(),
 			},
 			{
 				Name:        "company_is_owner",
@@ -295,7 +331,7 @@ func tableTeamworkProject(ctx context.Context) *plugin.Table {
 			{
 				Name:        "announcement",
 				Type:        proto.ColumnType_STRING,
-				Description: "Any announcements associated with the project.",
+				Description: "An announcement associated with the project.",
 				Transform:   transform.FromField("Announcement").NullIfZero(),
 			},
 			{
@@ -313,8 +349,134 @@ func tableTeamworkProject(ctx context.Context) *plugin.Table {
 			{
 				Name:        "tags",
 				Type:        proto.ColumnType_JSON,
-				Description: "Indicates whether or not to show announcements associated with this project.",
+				Description: "Tags associated with this project.",
 				Transform:   transform.FromField("Tags").NullIfZero(),
+			},
+			{
+				Name:        "portfolio_boards",
+				Type:        proto.ColumnType_JSON,
+				Description: "Portfolio boards associated with this project.",
+				Transform:   transform.FromField("PortfolioBoards").NullIfZero(),
+			},
+			{
+				Name:        "type",
+				Type:        proto.ColumnType_STRING,
+				Description: "Type of the project.",
+				Transform:   transform.FromField("Type").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_billing",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Billing page is active.",
+				Transform:   transform.FromField("ActivePages.Billing").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_comments",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Comments page is active.",
+				Transform:   transform.FromField("ActivePages.Comments").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_files",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Files page is active.",
+				Transform:   transform.FromField("ActivePages.Files").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_links",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Links page is active.",
+				Transform:   transform.FromField("ActivePages.Links").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_notebooks",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Notebooks page is active.",
+				Transform:   transform.FromField("ActivePages.Notebooks").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_tasks",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Tasks page is active.",
+				Transform:   transform.FromField("ActivePages.Tasks").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_time",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Time page is active.",
+				Transform:   transform.FromField("ActivePages.Time").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_risk_register",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Risk Register page is active.",
+				Transform:   transform.FromField("ActivePages.RiskRegister").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_milestones",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Milestones page is active.",
+				Transform:   transform.FromField("ActivePages.Milestones").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_messages",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Messages page is active.",
+				Transform:   transform.FromField("ActivePages.Messages").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_board",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Board page is active.",
+				Transform:   transform.FromField("ActivePages.Board").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_proofs",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Proofs page is active.",
+				Transform:   transform.FromField("ActivePages.Proofs").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_table",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Table page is active.",
+				Transform:   transform.FromField("ActivePages.Table").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_forms",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Forms page is active.",
+				Transform:   transform.FromField("ActivePages.Forms").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_gantt",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Gantt page is active.",
+				Transform:   transform.FromField("ActivePages.Gantt").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_finance",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the Finance page is active.",
+				Transform:   transform.FromField("ActivePages.Finance").NullIfZero(),
+			},
+			{
+				Name:        "active_pages_list",
+				Type:        proto.ColumnType_STRING,
+				Description: "Indicates whether the List page is active.",
+				Transform:   transform.FromField("ActivePages.List").NullIfZero(),
+			},
+			{
+				Name:        "direct_file_uploads_enabled",
+				Type:        proto.ColumnType_BOOL,
+				Description: "Indicates whether direct file uploads are allowed.",
+				Transform:   transform.FromField("DirectFileUploadsEnabled").NullIfZero(),
+			},
+			{
+				Name:        "skip_weekends",
+				Type:        proto.ColumnType_BOOL,
+				Description: "Indicates whether weekends are work days for this project.",
+				Transform:   transform.FromField("SkipWeekends").NullIfZero(),
 			},
 		},
 	}
@@ -384,72 +546,96 @@ func listTeamworkProjects(
 	return nil, nil
 }
 
-// TODO: fill out with additional fields from selecting a single project
 type Project struct {
-	StartDate      string    `json:"startDate"`
-	LastChangedOn  time.Time `json:"last-changed-on"`
-	Logo           string    `json:"logo"`
-	CreatedOn      time.Time `json:"created-on"`
-	PrivacyEnabled bool      `json:"privacyEnabled"`
-	Status         string    `json:"status"`
-	BoardData      struct {
+	Announcement     string `json:"announcement"`
+	AnnouncementHTML string `json:"announcementHTML"`
+	BoardData        struct {
 	} `json:"boardData"`
-	ReplyByEmailEnabled  bool   `json:"replyByEmailEnabled"`
-	HarvestTimersEnabled bool   `json:"harvest-timers-enabled"`
-	Description          string `json:"description"`
-	Category             struct {
-		Color string `json:"color"`
-		ID    string `json:"id"`
-		Name  string `json:"name"`
+	CreatedOn                time.Time `json:"created-on"`
+	DefaultPrivacy           string    `json:"defaultPrivacy"`
+	Description              string    `json:"description"`
+	DirectFileUploadsEnabled bool      `json:"directFileUploadsEnabled"`
+	EndDate                  string    `json:"endDate"`
+	FilesAutoNewVersion      bool      `json:"filesAutoNewVersion"`
+	HarvestTimersEnabled     bool      `json:"harvest-timers-enabled"`
+	ID                       string    `json:"id"`
+	IsBillable               bool      `json:"isBillable"`
+	IsOnBoardingProject      bool      `json:"isOnBoardingProject"`
+	IsProjectAdmin           bool      `json:"isProjectAdmin"`
+	IsSampleProject          bool      `json:"isSampleProject"`
+	LastChangedOn            time.Time `json:"last-changed-on"`
+	Logo                     string    `json:"logo"`
+	LogoFromCompany          bool      `json:"logoFromCompany"`
+	Name                     string    `json:"name"`
+	Notifyeveryone           bool      `json:"notifyeveryone"`
+	OverviewStartPage        string    `json:"overview-start-page"`
+	PortfolioBoards          []any     `json:"portfolioBoards"`
+	PrivacyEnabled           bool      `json:"privacyEnabled"`
+	ReplyByEmailEnabled      bool      `json:"replyByEmailEnabled"`
+	ShowAnnouncement         bool      `json:"show-announcement"`
+	SkipWeekends             bool      `json:"skipWeekends"`
+	Starred                  bool      `json:"starred"`
+	StartPage                string    `json:"start-page"`
+	StartDate                string    `json:"startDate"`
+	Status                   string    `json:"status"`
+	SubStatus                string    `json:"subStatus"`
+	Tags                     []any     `json:"tags"`
+	TasksStartPage           string    `json:"tasks-start-page"`
+	Type                     string    `json:"type"`
+	ActivePages              struct {
+		Billing      string `json:"billing"`
+		Board        string `json:"board"`
+		Comments     string `json:"comments"`
+		Files        string `json:"files"`
+		Finance      string `json:"finance"`
+		Forms        string `json:"forms"`
+		Gantt        string `json:"gantt"`
+		Links        string `json:"links"`
+		List         string `json:"list"`
+		Messages     string `json:"messages"`
+		Milestones   string `json:"milestones"`
+		Notebooks    string `json:"notebooks"`
+		Proofs       string `json:"proofs"`
+		RiskRegister string `json:"riskRegister"`
+		Table        string `json:"table"`
+		Tasks        string `json:"tasks"`
+		Time         string `json:"time"`
+	} `json:"active-pages"`
+	Category struct {
+		Color    string `json:"color"`
+		ID       string `json:"id"`
+		Name     string `json:"name"`
+		ParentID string `json:"parentId"`
 	} `json:"category"`
-	ID                string `json:"id"`
-	OverviewStartPage string `json:"overview-start-page"`
-	StartPage         string `json:"start-page"`
-	Integrations      struct {
-		Xero struct {
-			Basecurrency string `json:"basecurrency"`
-			Countrycode  string `json:"countrycode"`
-			Enabled      bool   `json:"enabled"`
-			Connected    string `json:"connected"`
-			Organisation string `json:"organisation"`
-		} `json:"xero"`
-		Sharepoint struct {
-			Account    string `json:"account"`
-			Foldername string `json:"foldername"`
-			Enabled    bool   `json:"enabled"`
-			Folder     string `json:"folder"`
-		} `json:"sharepoint"`
-		MicrosoftConnectors struct {
-			Enabled bool `json:"enabled"`
-		} `json:"microsoftConnectors"`
-		Onedrivebusiness struct {
-			Account    string `json:"account"`
-			Foldername string `json:"foldername"`
-			Enabled    bool   `json:"enabled"`
-			Folder     string `json:"folder"`
-		} `json:"onedrivebusiness"`
-	} `json:"integrations"`
+	Company struct {
+		ID      string `json:"id"`
+		IsOwner string `json:"is-owner"`
+		Name    string `json:"name"`
+	} `json:"company"`
 	Defaults struct {
 		Privacy string `json:"privacy"`
 	} `json:"defaults"`
-	Notifyeveryone      bool   `json:"notifyeveryone"`
-	FilesAutoNewVersion bool   `json:"filesAutoNewVersion"`
-	DefaultPrivacy      string `json:"defaultPrivacy"`
-	TasksStartPage      string `json:"tasks-start-page"`
-	Starred             bool   `json:"starred"`
-	AnnouncementHTML    string `json:"announcementHTML"`
-	IsProjectAdmin      bool   `json:"isProjectAdmin"`
-	Name                string `json:"name"`
-	Company             struct {
-		IsOwner string `json:"is-owner"`
-		ID      string `json:"id"`
-		Name    string `json:"name"`
-	} `json:"company"`
-	EndDate          string `json:"endDate"`
-	Announcement     string `json:"announcement"`
-	ShowAnnouncement bool   `json:"show-announcement"`
-	SubStatus        string `json:"subStatus"`
-	Tags             []any  `json:"tags"`
+	Integrations struct {
+		Onedrivebusiness struct {
+			Account    string `json:"account"`
+			Enabled    bool   `json:"enabled"`
+			Folder     string `json:"folder"`
+			Foldername string `json:"foldername"`
+		} `json:"onedrivebusiness"`
+		Sharepoint struct {
+			Account    string `json:"account"`
+			Enabled    bool   `json:"enabled"`
+			Folder     string `json:"folder"`
+			Foldername string `json:"foldername"`
+		} `json:"sharepoint"`
+		Xero struct {
+			Basecurrency string `json:"basecurrency"`
+			Connected    string `json:"connected"`
+			Countrycode  string `json:"countrycode"`
+			Enabled      bool   `json:"enabled"`
+			Organisation string `json:"organisation"`
+		} `json:"xero"`
+	} `json:"integrations"`
 }
 
 type ProjectsResponse struct {

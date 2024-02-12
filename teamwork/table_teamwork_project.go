@@ -14,6 +14,7 @@ func tableTeamworkProject(ctx context.Context) *plugin.Table {
 	return &plugin.Table{
 		Name:        "teamwork_project",
 		Description: "Projects from Teamwork.com",
+		/*  // TODO - Implement GetConfig
 		Get: &plugin.GetConfig{
 			Hydrate: getTeamworkProject,
 			KeyColumns: []*plugin.KeyColumn{
@@ -24,6 +25,7 @@ func tableTeamworkProject(ctx context.Context) *plugin.Table {
 				},
 			},
 		},
+		*/
 		List: &plugin.ListConfig{
 			Hydrate: listTeamworkProjects,
 			KeyColumns: []*plugin.KeyColumn{

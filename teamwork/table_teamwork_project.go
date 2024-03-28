@@ -484,6 +484,7 @@ func tableTeamworkProject(ctx context.Context) *plugin.Table {
 	}
 }
 
+/*
 func getTeamworkProject(
 	ctx context.Context,
 	d *plugin.QueryData,
@@ -513,6 +514,7 @@ func getTeamworkProject(
 	plugin.Logger(ctx).Trace("Exiting getTeamworkProject()")
 	return project.Project, nil
 }
+*/
 
 func listTeamworkProjects(
 	ctx context.Context,

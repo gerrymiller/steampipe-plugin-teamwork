@@ -19,11 +19,14 @@ func setupSuite(tb testing.TB) (func(tb testing.TB), string) {
 	// Create a test server that always returns the same response
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var file string
-		projectPattern := regexp.MustCompile(`^/project/[0-9]+.json$`)
+		projectPattern := regexp.MustCompile(`^/project/[0-9]+\.json$`)
+		projectsPattern := regexp.MustCompile(`^/projects(_paginated)?\.json$`)
 
 		switch cmd := r.URL.Path; {
-		case cmd == "/projects.json":
+		// Return an unpaginated list of projects
+		case projectsPattern.MatchString(cmd):
 			file = `test_data/projects.json`
+		// Return a single project
 		case projectPattern.MatchString(cmd):
 			file = `test_data/project.json`
 		default:
@@ -62,12 +65,25 @@ func setupSuite(tb testing.TB) (func(tb testing.TB), string) {
 		w.Header().Set("x-from-cache", "true")
 		w.Header().Set("x-isfiltered:", "false")
 		w.Header().Set("x-lastupdated", "2024-01-28T14:43:33Z")
-		w.Header().Set("x-page", "1")
-		w.Header().Set("x-pages", "1")
+
+		page := r.URL.Query().Get("page")
+		if page == "" {
+			w.Header().Set("x-page", "1")
+		} else {
+			w.Header().Set("x-page", page)
+		}
+
+		if r.URL.Path == "/projects_paginated.json" {
+			w.Header().Set("x-pages", "2")
+			w.Header().Set("x-records", "142")
+		} else {
+			w.Header().Set("x-pages", "1")
+			w.Header().Set("x-records", "71")
+		}
+
 		w.Header().Set("x-ratelimit-limit", "150")
 		w.Header().Set("x-ratelimit-remaining", "149")
 		w.Header().Set("x-ratelimit-reset", "60")
-		w.Header().Set("x-records", "71")
 		w.Header().Set("x-xss-protection", "1; mode=block")
 		w.Header().Set("access-control-allow-credentials", "true")
 		w.Header().
@@ -95,19 +111,73 @@ func TestListTeamworkItemsProjects(t *testing.T) {
 	teardownSuite, url := setupSuite(t)
 	defer teardownSuite(t)
 
+	for _, test := range []struct {
+		Name string
+		fn   func(*testing.T, string)
+	}{
+		//{"testListTeamworkItemsProject", testListTeamworkItemsProject},
+		{"testListTeamworkItemsProjectsUnpaginated", testListTeamworkItemsProjectsUnpaginated},
+		{"testListTeamworkItemsProjectsPaginated", testListTeamworkItemsProjectsPaginated},
+	} {
+		teardownTest := setupTest(t)
+		defer teardownTest(t)
+		t.Run(test.Name, func(t *testing.T) {
+			test.fn(t, url)
+		})
+	}
+}
+
+/*
+func testListTeamworkItemsProject(t *testing.T, url string) {
+	// Call the API
+	var response ProjectResponse
+	_, err := ListTeamworkItems("apiKey", url+"/project/483331.json", &response, hclog.Default())
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	if response.Status != "OK" {
+		t.Errorf("unexpected status: got %v, want %v", response.Status, "OK")
+	}
+	if response.Project.ID != "483331" {
+		t.Errorf("unexpected project ID: got %v, want %v", response.Project.ID, "483331")
+	}
+}
+*/
+
+func testListTeamworkItemsProjectsUnpaginated(t *testing.T, url string) {
 	// Call the API
 	var response ProjectsResponse
 	_, err := ListTeamworkItems("apiKey", url+"/projects.json", &response, hclog.Default())
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	t.Logf("projects: %+v", response)
-	t.Logf("projects: %+v", len(response.Projects))
 
 	if response.Status != "OK" {
 		t.Errorf("unexpected status: got %v, want %v", response.Status, "OK")
 	}
 	if len(response.Projects) != 71 {
 		t.Errorf("unexpected number of projects: got %v, want %v", len(response.Projects), 71)
+	}
+}
+
+func testListTeamworkItemsProjectsPaginated(t *testing.T, url string) {
+	// Call the API
+	var response ProjectsResponse
+	_, err := ListTeamworkItems(
+		"apiKey",
+		url+"/projects_paginated.json",
+		&response,
+		hclog.Default(),
+	)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	if response.Status != "OK" {
+		t.Errorf("unexpected status: got %v, want %v", response.Status, "OK")
+	}
+	if len(response.Projects) != 142 {
+		t.Errorf("unexpected number of projects: got %v, want %v", len(response.Projects), 142)
 	}
 }

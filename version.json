@@ -1,0 +1,5 @@
+{
+    "name": "local/steampipe-plugin-teamwork@latest",
+    "version": "0.1.0",
+    "struct_version": 20230502
+}

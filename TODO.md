@@ -1,14 +1,10 @@
 # Things left to do
 
-* Add pagination
-
 * Use AWS (<https://github.com/turbot/steampipe-plugin-aws/tree/main/aws>) as a guide
 
 * Refactor to use Table Tags to a single retrieve function
 
 * Refactor to include all "hints"
-
-* Refactor to use Go generics
 
 * Add all Go docs (<https://go.dev/doc/comment>)
 

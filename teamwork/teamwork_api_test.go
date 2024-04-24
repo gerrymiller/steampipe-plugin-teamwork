@@ -115,7 +115,7 @@ func TestListTeamworkItemsProjects(t *testing.T) {
 		Name string
 		fn   func(*testing.T, string)
 	}{
-		//{"testListTeamworkItemsProject", testListTeamworkItemsProject},
+		{"testListTeamworkItemsProject", testListTeamworkItemsProject},
 		{"testListTeamworkItemsProjectsUnpaginated", testListTeamworkItemsProjectsUnpaginated},
 		{"testListTeamworkItemsProjectsPaginated", testListTeamworkItemsProjectsPaginated},
 	} {
@@ -127,7 +127,6 @@ func TestListTeamworkItemsProjects(t *testing.T) {
 	}
 }
 
-/*
 func testListTeamworkItemsProject(t *testing.T, url string) {
 	// Call the API
 	var response ProjectResponse
@@ -143,7 +142,6 @@ func testListTeamworkItemsProject(t *testing.T, url string) {
 		t.Errorf("unexpected project ID: got %v, want %v", response.Project.ID, "483331")
 	}
 }
-*/
 
 func testListTeamworkItemsProjectsUnpaginated(t *testing.T, url string) {
 	// Call the API
